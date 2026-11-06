@@ -1,4 +1,4 @@
-function saveTask(){
+function saveTask() {
     //1. Get values from the DOM
     const title = $("#txtTitle").val();
     const desc = $("#txtDescription").val();
@@ -7,20 +7,18 @@ function saveTask(){
     const status = $("#selStatus").val();
     const budget = $("#numBudget").val();
     //2. Create an Object using our Class
-    const taskToSave = new Task(title,desc,color,date,status,budget);
+    const taskToSave = new Task(title, desc, color, date, status, budget);
     //3. Send to Server
     $.ajax(
         {
-            type:"POST", // HTTP Verb: create
+            type: "POST", // HTTP Verb: create
             url: serverName,
             data: JSON.stringify(taskToSave),
             contentType: "application/json",
-            success: function(response)
-            {
-                console.log(response);
+            success: function (response) {
+                console.log(response);                                         
             },
-            error: function(fails)
-            {
+            error: function (fails) {
                 console.log(fails);
             }
 
@@ -30,19 +28,38 @@ function saveTask(){
 }
 
 //this URL it is the server 
-const serverName="https://106api-b0bnggbsgnezbzcz.westus3-01.azurewebsites.net/api/tasks";
+const serverName = "https://106api-b0bnggbsgnezbzcz.westus3-01.azurewebsites.net/api/tasks";
 
-function loadTask(){
-    $.ajax(
+function updateTask() {
+    $.ajax({
+        type: "PUT", //HTTP Verb: Update
+        url: "https://106api-b0bnggbsgnezbzcz.westus3-01.azurewebsites.net/api/tasks/1",
+        data: JSON.stringify({
+            title: "Hello",
+            budget: 99999,
+        }),
+        contentType: "application/json",
+        success: function (response) {
+            console.log(response);
+        }, error: function (fails) {
+            console.log(fails);
+        }
+    })
+}
+
+function loadTask() {
+    $.ajax(//Asyc JavaScript XML
         {
-            type:"get", //HTTP verb: READ
+            type: "get", //HTTP verb: READ
             url: serverName,
-            success: function(response)
-            {
+            success: function (response) {
                 console.log(response);
+                for(let i=0; i<response.length;i++)//reusing the displaytask code
+                {
+                    displayTask(response[i]);
+                }
             },
-            error: function(fail)
-            {
+            error: function (fail) {
                 console.log(fail)
             }
 
@@ -51,9 +68,9 @@ function loadTask(){
 }
 
 function displayTask(task) {
-  // Template literal using backticks
-  let html = `
-    <div class="task" style="border-color:${task.color}">
+    // Template literal using backticks
+    let html = `
+    <div class="task" id="${task.id}" style="border-color:${task.color}">
       <div class="info">
         <h4>${task.title}</h4>
         <p>${task.desc}</p>
@@ -63,18 +80,31 @@ function displayTask(task) {
         <label>Due: ${task.date}</label>
         <label>Budget: $${task.budget}</label>
       </div>
+      <button class="btn-delete">Delete</button>
     </div>`;
 
-  // Add to DOM
-  $(".list").append(html);
+    // Add to DOM
+    $(".list").append(html);
 }
 
-function init()
-{
+function deleteTask(){
+    console.log("hello from the delete");
+    // 1. This is the specific button that was clicked
+    let btn = $(this);
+    // 2. Find the parent 
+    let element = btn.parents(".task");
+    // 3. Get the ID
+    let id = element.attr("id");
+    console.log(id);
+}
+
+function init() {
     console.log("hello from ch72");
     //hook the save button
     $("#btnSave").click(saveTask);
-
+    //Lets try this in to the delete Button
+    //$(".btn-delete").click(deleteTask);
+    $(".list").on("click",".btn-delete",deleteTask);
     //load data from the server 
     loadTask();
 }
